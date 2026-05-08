@@ -98,7 +98,7 @@ For unknown subjects, a default generic study plan is generated automatically.
 1. Clone the repository
 
 ```bash
-git clone <your-repo-link>
+git clone https://github.com/SanthoshiInavolu/Study-Schedule-Generator
 ```
 
 2. Open the project folder
