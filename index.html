@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Study Schedule Generator</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #f4f3ff;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            color: #1a1a2e;
+        }
+
+        .wrapper {
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #3c34b7;
+        }
+
+        header p {
+            font-size: 14px;
+            color: #666;
+            margin-top: 6px;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #e0dff5;
+            border-radius: 14px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 10px;
+        }
+
+        textarea,
+        input[type="number"] {
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            font-family: inherit;
+            color: #1a1a2e;
+            background: #fafafa;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        textarea:focus,
+        input[type="number"]:focus {
+            border-color: #7f77dd;
+            background: #fff;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            min-width: 130px;
+        }
+
+        .field label {
+            font-size: 13px;
+            color: #555;
+        }
+
+        button.primary {
+            width: 100%;
+            background: #3c34b7;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        button.primary:hover {
+            background: #534ab7;
+        }
+
+        button.primary:active {
+            transform: scale(0.98);
+        }
+
+        #error {
+            font-size: 13px;
+            color: #e24b4a;
+            margin-top: 8px;
+            min-height: 18px;
+        }
+
+        #output {
+            margin-top: 1.5rem;
+        }
+
+        .summary {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            background: #fff;
+            border: 1px solid #e0dff5;
+            border-radius: 10px;
+            padding: 12px 16px;
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .stat-val {
+            font-size: 22px;
+            font-weight: 700;
+            color: #3c34b7;
+        }
+
+        .stat-lbl {
+            font-size: 11px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .schedule-day {
+            background: #fff;
+            border: 1px solid #e0dff5;
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1rem;
+            border-left: 3px solid #7f77dd;
+        }
+
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 4px 0;
+            user-select: none;
+        }
+
+        .day-header:hover .day-title {
+            color: #3c34b7;
+        }
+
+        .day-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #534ab7;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .day-arrow {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .day-body {
+            margin-top: 10px;
+        }
+
+        .slot {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0effe;
+        }
+
+        .slot:last-child {
+            border-bottom: none;
+        }
+
+        .slot-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            cursor: pointer;
+        }
+
+        .slot-top:hover .slot-name {
+            color: #534ab7;
+        }
+
+        .slot-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .slot-topic {
+            font-size: 12px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .slot-right {
+            text-align: right;
+            min-width: 140px;
+            margin-left: 12px;
+        }
+
+        .slot-meta {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .slot-expand-hint {
+            font-size: 11px;
+            color: #7f77dd;
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        .slot-detail {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed #e0dff5;
+        }
+
+        .detail-section {
+            margin-bottom: 12px;
+        }
+
+        .detail-heading {
+            font-size: 12px;
+            font-weight: 700;
+            color: #534ab7;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .slot-detail ul,
+        .slot-detail ol {
+            padding-left: 18px;
+            margin: 0;
+        }
+
+        .slot-detail li {
+            font-size: 13px;
+            color: #333;
+            line-height: 1.7;
+            margin-bottom: 3px;
+        }
+
+        .tip-box {
+            background: #f4f3ff;
+            border: 1px solid #d6d3f5;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #534ab7;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <header>
+            <h1>📚 Study Scheduler</h1>
+            <p>Enter your subjects and get a smart day-by-day study plan instantly.</p>
+        </header>
+
+        <div class="card">
+            <p class="section-label">Your subjects (comma separated)</p>
+            <textarea id="subjects"
+                placeholder="e.g. Operating Systems, DBMS, Computer Networks, Machine Learning"></textarea>
+        </div>
+
+        <div class="card">
+            <p class="section-label">Your availability</p>
+            <div class="row">
+                <div class="field">
+                    <label>Days to plan</label>
+                    <input type="number" id="days" value="5" min="1" max="7" />
+                </div>
+                <div class="field">
+                    <label>Hours per day</label>
+                    <input type="number" id="hours" value="4" min="1" max="10" />
+                </div>
+                <div class="field">
+                    <label>Exam in (days)</label>
+                    <input type="number" id="exam" value="10" min="1" max="60" />
+                </div>
+            </div>
+            <textarea id="priority" placeholder="Priority subjects? e.g. OS is hardest (optional)"
+                style="min-height:50px;"></textarea>
+        </div>
+
+        <button class="primary" onclick="generate()">Generate my schedule →</button>
+        <div id="error"></div>
+        <div id="output"></div>
+    </div>
+
+    <script src="scheduler.js"></script>
+</body>
+
+</html>
